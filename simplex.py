@@ -24,12 +24,15 @@ def simplex_min(A, b, c, Xn, Xb):
             return Xb, xBarra, zBarra
         
         yi = B_inv @ A[:, Xn[imax]]
-        theta = xBarra.T / yi
-        if np.all(theta <= 0):
+        
+        with np.errstate(divide='ignore', invalid='ignore'):
+            theta = np.where(yi > 0, xBarra.flatten() / yi.flatten(), np.inf)
+        
+        if np.all(theta == np.inf):
             print("Unbounded solution")
             return None
         
-        imin = np.argmin(theta[theta > 0])
+        imin = np.argmin(theta)
 
         Xb[imin], Xn[imax] = Xn[imax], Xb[imin]
         print(f"Iteration {_ + 1}: Xb = {Xb}, xBarra = {xBarra.flatten()}, zBarra = {zBarra.flatten()}")
