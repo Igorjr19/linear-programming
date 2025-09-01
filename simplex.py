@@ -1,24 +1,6 @@
 import numpy as np
 from numpy import linalg
 
-# Matriz dos coeficientes das inequações
-A = np.array([
-    [1, 1, 1, 0, 0], 
-    [1, 0, 0, 1, 0],
-    [0, 1, 0, 0, 1]
-    ]) 
-
-# "Respostas" das inequações
-b = np.array([4, 3, 2])[:, None]  
-
-# Função objetivo
-c = np.array([-5, -2, 0, 0, 0])[:, None]  
-
-# Variáveis básicas e não básicas
-Xb = np.array([2, 3, 4])
-Xn = np.array([0, 1])
-
-
 def simplex_min(A, b, c, Xn, Xb):
     max_iter = 10
 
@@ -58,5 +40,49 @@ def simplex_min(A, b, c, Xn, Xb):
     
     return None
 
+def handle_target(c, target):
+    if target == 'max':
+        return -c
+    elif target == 'min':
+        return c
+    else:
+        raise ValueError("Target must be 'max' or 'min'")
+
+def parse(problem, z, target='max'):
+    num_constraints, num_vars = problem.shape[0], problem.shape[1] - 2
+
+    A = np.zeros((num_constraints, num_vars + num_constraints))
+    b = np.zeros((num_constraints, 1))
+    c = np.zeros((num_vars + num_constraints, 1))
+
+    for i in range(num_constraints):
+        A[i, :num_vars] = problem[i, :num_vars]
+        b[i] = problem[i, -1]
+        if problem[i, -2] == '<=':
+            A[i, num_vars + i] = 1
+        elif problem[i, -2] == '>=':
+            A[i, num_vars + i] = -1
+        else:
+            raise ValueError("Inequality must be '<=' or '>='")
+
+    c[:num_vars] = z[:, None]
+    c = handle_target(c, target)
+
+
+    Xb = np.array(range(num_vars, num_vars + num_constraints))
+    Xn = np.array(range(num_vars))
+
+    return A, b, c, Xn, Xb
+
+target = 'max'
+problem = np.array([
+    [1, 1, '<=', 4],
+    [1, 0, '<=', 3],
+    [0, 1, '<=', 2]
+])
+z = np.array([5, 2])
+
+
+A, b, c, Xn, Xb = parse(problem, z, target)
 
 simplex_min(A, b, c, Xn, Xb)
