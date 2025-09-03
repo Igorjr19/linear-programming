@@ -14,9 +14,9 @@ def simplex(
     Xn: np.ndarray,
     Xb: np.ndarray,
     target: str,
+    max_iter: int = 100,
     verbose: bool = True,
 ) -> tuple | None:
-    max_iter = 10
 
     for _ in range(max_iter):
         B = A[:, Xb]
@@ -129,7 +129,7 @@ def solve(
         log("Two-phase method needed. Not implemented.", verbose)
         return None
 
-    return simplex(A, b, c, Xn, Xb, target, verbose)
+    return simplex(A, b, c, Xn, Xb, target,verbose=verbose)
 
 
 if __name__ == "__main__":
