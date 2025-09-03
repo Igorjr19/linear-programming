@@ -86,8 +86,28 @@ def parse(z, constraints, target="max"):
 
     return A, b, c, Xn, Xb
 
+def validate_input(z, constraints, target):
+    if not isinstance(z, np.ndarray) or z.ndim != 1:
+        raise ValueError("Objective function coefficients (z) must be a 1D numpy array")
+    if not isinstance(constraints, np.ndarray) or constraints.ndim != 2:
+        raise ValueError("Constraints must be a 2D numpy array")
+    if constraints.shape[1] < 3:
+        raise ValueError("Each constraint must have at least one variable, an inequality, and a right-hand side value")
+    if target not in ["max", "min"]:
+        raise ValueError("Target must be 'max' or 'min'")
+    if constraints.shape[0] == 0:
+        raise ValueError("At least one constraint is required")
+    if z.shape[0] != constraints.shape[1] - 2:
+        raise ValueError("Number of objective function coefficients must match number of variables in constraints")
 
-def solve(z, constraints, target, verbose=True):
+def solve(
+    z: np.ndarray,
+    constraints: np.ndarray,
+    target: str,
+    verbose: bool = True,
+) -> tuple | None:
+    validate_input(z, constraints, target)
+
     A, b, c, Xn, Xb = parse(z, constraints, target)
 
     two_phase_needed = np.any(constraints[:, -2] == ">=") or np.any(b < 0)
@@ -98,13 +118,9 @@ def solve(z, constraints, target, verbose=True):
     return simplex(A, b, c, Xn, Xb, target, verbose)
 
 
-
 if __name__ == "__main__":
     target = "max"
-    constraints = np.array([[-1, 2, "<=", 4],
-                            [1, 1, "<=", 6],
-                            [1, 3, "<=", 9]])
+    constraints = np.array([[-1, 2, "<=", 4], [1, 1, "<=", 6], [1, 3, "<=", 9]])
     z = np.array([2, 3])
 
     solve(z, constraints, target, True)
-  
