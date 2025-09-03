@@ -7,7 +7,7 @@ def log(msg, verbose=True):
         print(msg)
 
 
-def simplex_min(A, b, c, Xn, Xb, verbose=True):
+def simplex(A, b, c, Xn, Xb, target, verbose=True):
     max_iter = 10
 
     for _ in range(max_iter):
@@ -19,10 +19,12 @@ def simplex_min(A, b, c, Xn, Xb, verbose=True):
         xBarra = B_inv @ b
         zBarra = cb.T @ xBarra
 
-        zj_cj = cb.T @ B_inv @ A[:, Xn] - cn.T
-        zj_cj = zj_cj.flatten()
+        zj_cj = (cb.T @ B_inv @ A[:, Xn] - cn.T).flatten()
+
         imax = np.argmax(zj_cj)
         if zj_cj[imax] <= 0:
+            if target == "max":
+                zBarra = -zBarra
             log("\n***Optimal solution found!***", verbose)
             log(f"Optimal value: {zBarra.flatten()[0]}", verbose)
             log(f"Basic variables: {Xb}, Non-basic variables: {Xn}", verbose)
@@ -86,7 +88,7 @@ def parse(z, constraints, target="max"):
     return A, b, c, Xn, Xb
 
 
-def simplex(z, constraints, target, verbose=True):
+def solve(z, constraints, target, verbose=True):
     A, b, c, Xn, Xb = parse(z, constraints, target)
 
     two_phase_needed = np.any(constraints[:, -2] == ">=") or np.any(b < 0)
@@ -94,14 +96,16 @@ def simplex(z, constraints, target, verbose=True):
         log("Two-phase method needed. Not implemented.", verbose)
         return None
 
-    return simplex_min(A, b, c, Xn, Xb, verbose)
+    return simplex(A, b, c, Xn, Xb, target, verbose)
+
 
 
 if __name__ == "__main__":
     target = "max"
-    constraints = np.array([[1, 1, "<=", 4],
-                            [1, 0, "<=", 3],
-                            [0, 1, "<=", 2]])
-    z = np.array([5, 2])
+    constraints = np.array([[-1, 2, "<=", 4],
+                            [1, 1, "<=", 6],
+                            [1, 3, "<=", 9]])
+    z = np.array([2, 3])
 
-    simplex(z, constraints, target, True)
+    solve(z, constraints, target, True)
+  
