@@ -7,7 +7,15 @@ def log(msg, verbose=True):
         print(msg)
 
 
-def simplex(A, b, c, Xn, Xb, target, verbose=True):
+def simplex(
+    A: np.ndarray,
+    b: np.ndarray,
+    c: np.ndarray,
+    Xn: np.ndarray,
+    Xb: np.ndarray,
+    target: str,
+    verbose: bool = True,
+) -> tuple | None:
     max_iter = 10
 
     for _ in range(max_iter):
@@ -52,16 +60,16 @@ def simplex(A, b, c, Xn, Xb, target, verbose=True):
     return None
 
 
-def handle_target(c, target):
+def handle_target(arr: np.ndarray, target: str) -> np.ndarray:
     if target == "max":
-        return -c
+        return -arr
     elif target == "min":
-        return c
+        return arr
     else:
         raise ValueError("Target must be 'max' or 'min'")
 
 
-def parse(z, constraints, target="max"):
+def parse(z: np.ndarray, constraints: np.ndarray, target: str = "max") -> tuple:
     num_constraints, num_vars = constraints.shape[0], constraints.shape[1] - 2
 
     A = np.zeros((num_constraints, num_vars + num_constraints))
@@ -86,19 +94,25 @@ def parse(z, constraints, target="max"):
 
     return A, b, c, Xn, Xb
 
+
 def validate_input(z, constraints, target):
     if not isinstance(z, np.ndarray) or z.ndim != 1:
         raise ValueError("Objective function coefficients (z) must be a 1D numpy array")
     if not isinstance(constraints, np.ndarray) or constraints.ndim != 2:
         raise ValueError("Constraints must be a 2D numpy array")
     if constraints.shape[1] < 3:
-        raise ValueError("Each constraint must have at least one variable, an inequality, and a right-hand side value")
+        raise ValueError(
+            "Each constraint must have at least one variable, an inequality, and a right-hand side value"
+        )
     if target not in ["max", "min"]:
         raise ValueError("Target must be 'max' or 'min'")
     if constraints.shape[0] == 0:
         raise ValueError("At least one constraint is required")
     if z.shape[0] != constraints.shape[1] - 2:
-        raise ValueError("Number of objective function coefficients must match number of variables in constraints")
+        raise ValueError(
+            "Number of objective function coefficients must match number of variables in constraints"
+        )
+
 
 def solve(
     z: np.ndarray,
