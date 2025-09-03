@@ -4,7 +4,7 @@ from numpy import linalg
 
 def log(msg, verbose=True):
     if verbose:
-        print(msg, verbose)
+        print(msg)
 
 
 def simplex_min(A, b, c, Xn, Xb, verbose=True):
@@ -99,9 +99,9 @@ def simplex(z, constraints, target, verbose=True):
 
 if __name__ == "__main__":
     target = "max"
-    constraints = np.array(
-        [[1, 1, "<=", 4], [1, 0, "<=", 3], [0, 1, "<=", 2]], dtype=object
-    )
+    constraints = np.array([[1, 1, "<=", 4],
+                            [1, 0, "<=", 3],
+                            [0, 1, "<=", 2]])
     z = np.array([5, 2])
 
     simplex(z, constraints, target, True)
