@@ -23,8 +23,7 @@ def simplex(A, b, c, Xn, Xb, target, verbose=True):
 
         imax = np.argmax(zj_cj)
         if zj_cj[imax] <= 0:
-            if target == "max":
-                zBarra = -zBarra
+            zBarra = handle_target(zBarra, target)
             log("\n***Optimal solution found!***", verbose)
             log(f"Optimal value: {zBarra.flatten()[0]}", verbose)
             log(f"Basic variables: {Xb}, Non-basic variables: {Xn}", verbose)
